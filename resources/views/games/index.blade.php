@@ -15,6 +15,7 @@
                 <th>Rating</th>
                 <th>Edit</th>
                 <th>Delete</th>
+                <th>Show</th>
             </tr>
         </thead>
         <tbody>
@@ -36,11 +37,15 @@
                             <button onclick="return confirm('Weet je het zeker?')" class="btn btn-danger btn-sm" type="submit">Delete</button>
                         </form>
                     </td>
+                    <td>
+                        <a href="/games/show/{{ $game->id }}" class="btn btn-info btn-sm">Show</a>
+                    </td>
                 </tr>
             @endforeach
             <tr>
                 <td colspan="4"><strong>Gemiddelde rating:</strong></td>
                 <td><strong>{{ count($games) > 0 ? number_format($sum / count($games), 1) : 0 }}/10</strong></td>
+                <td></td>
                 <td></td>
                 <td></td>
             </tr>
