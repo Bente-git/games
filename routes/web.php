@@ -24,7 +24,6 @@ Route::get('/geheim', function () {
 
 // Iedereen mag het overzicht zien
 Route::get('/games', [GameController::class, 'index']);
-Route::get('/games/{id}', [GameController::class, 'show']);
 
 // Alleen ingelogde gebruikers
 Route::middleware('auth')->group(function () {
@@ -34,5 +33,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/games/update/{id}', [GameController::class, 'update']);
     Route::post('/games/destroy/{id}', [GameController::class, 'destroy']);
 });
+
+// Deze moet onderaan staan, anders vangt {id} ook "create" en "edit" op
+Route::get('/games/{id}', [GameController::class, 'show']);
 
 require __DIR__.'/auth.php';
