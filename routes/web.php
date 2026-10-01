@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\Beheer\PermissionController;
+use App\Http\Controllers\Beheer\RoleController;
+use App\Http\Controllers\Beheer\RolePermissionController;
+use App\Http\Controllers\Beheer\UserRoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,8 +29,8 @@ Route::get('/geheim', function () {
 // Iedereen mag het overzicht zien
 Route::get('/games', [GameController::class, 'index']);
 
-// Alleen ingelogde gebruikers
-Route::middleware('auth')->group(function () {
+// Alleen admins mogen de rest
+Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/games/create', [GameController::class, 'create']);
     Route::post('/games/store', [GameController::class, 'store']);
     Route::get('/games/edit/{id}', [GameController::class, 'edit']);
@@ -36,5 +40,27 @@ Route::middleware('auth')->group(function () {
 
 // Deze moet onderaan staan, anders vangt {id} ook "create" en "edit" op
 Route::get('/games/{id}', [GameController::class, 'show']);
+
+// Beheeromgeving: alleen admins
+Route::middleware(['auth', 'role:admin'])->prefix('beheer')->name('beheer.')->group(function () {
+
+    // 1. Permissies
+    Route::resource('permissions', PermissionController::class)->except('show');
+
+    // 2. Rollen
+    Route::resource('roles', RoleController::class)->except('show');
+
+    // 3. Permissie koppelen aan rol
+    Route::get('/role-permissions', [RolePermissionController::class, 'index'])->name('role-permissions.index');
+    Route::get('/role-permissions/create', [RolePermissionController::class, 'create'])->name('role-permissions.create');
+    Route::post('/role-permissions', [RolePermissionController::class, 'store'])->name('role-permissions.store');
+    Route::delete('/role-permissions/{role}/{permission}', [RolePermissionController::class, 'destroy'])->name('role-permissions.destroy');
+
+    // 4. Rol koppelen aan gebruiker
+    Route::get('/user-roles', [UserRoleController::class, 'index'])->name('user-roles.index');
+    Route::get('/user-roles/create', [UserRoleController::class, 'create'])->name('user-roles.create');
+    Route::post('/user-roles', [UserRoleController::class, 'store'])->name('user-roles.store');
+    Route::delete('/user-roles/{user}/{role}', [UserRoleController::class, 'destroy'])->name('user-roles.destroy');
+});
 
 require __DIR__.'/auth.php';
